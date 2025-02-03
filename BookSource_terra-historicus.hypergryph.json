@@ -1,0 +1,61 @@
+[
+    {
+        "bookSourceComment": "零点诗人的明日方舟源",
+        "bookSourceGroup": "明日方舟",
+        "bookSourceName": "泰拉记事社漫画",
+        "bookSourceType": 2,
+        "bookSourceUrl": "https://terra-historicus.hypergryph.com/",
+        "bookUrlPattern": "",
+        "concurrentRate": "",
+        "customOrder": 0,
+        "enabled": true,
+        "enabledCookieJar": true,
+        "enabledExplore": true,
+        "exploreUrl": "最近更新::https://terra-historicus.hypergryph.com",
+        "header": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.140 Safari/537.36",
+        "lastUpdateTime": 1738565146612,
+        "loginCheckJs": "",
+        "loginUi": "",
+        "loginUrl": "",
+        "respondTime": 180000,
+        "ruleBookInfo": {
+            "author": "$.data.authors",
+            "coverUrl": "$.data.cover",
+            "intro": "$.data.introduction",
+            "kind": "$.data.keywords",
+            "lastChapter": "$.data.episodes[0].title",
+            "name": "$.data.title",
+            "tocUrl": "https://terra-historicus.hypergryph.com/api/comic/{$.data.cid}"
+        },
+        "ruleContent": {
+            "content": "@js:\npageNums = JSON.parse(result).data.pageInfos.length;\nlist = []\nua = \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.140 Safari/537.36\"\nheaders = {\"User-Agent\": ua}\noption = {\"headers\": headers}\nfor (i = 0; i < pageNums; i++) {\n    response = java.ajax(chapter.url + `/page?pageNum=${i + 1}` + ',' + JSON.stringify(option));\n    img = '<img src=\"' + JSON.parse(response).data.url + '\"/>'\n    list.push(img)\n}\nhtml = list.join(\"\\n\");\nhtml\n\n",
+            "imageStyle": "FULL"
+        },
+        "ruleExplore": {
+            "author": "",
+            "bookList": "<js>\nfunction extractInitialProps(htmlString) {\n    // 正则表达式匹配 window.g_initialProps 的值\n    const regex = /window\\.g_initialProps\\s*=\\s*(.*?);/s;\n    const match = htmlString.match(regex);\n\n    if (match && match[1]) {\n        try {\n            // 将匹配到的字符串解析为JSON对象\n            const initialProps = JSON.parse(match[1]);\n            return initialProps.recentUpdate.list;\n        } catch (e) {\n            console.error(\"Error parsing JSON:\", e);\n        }\n    }\n    return null;\n}\n\ndata=extractInitialProps(result)\nfor (let i = 0; i < data.length; i++) {\n    book=data[i];\n    book.Url=`https://terra-historicus.hypergryph.com/api/comic/${book.comicCid}`\n}\n\nresult = data;\n</js>$.[*]",
+            "bookUrl": "Url",
+            "coverUrl": "coverUrl",
+            "intro": "",
+            "kind": "subtitle",
+            "name": "title",
+            "lastChapter": "episodeShortTitle"
+        },
+        "ruleSearch": {
+            "author": "$.authors##\\n##,",
+            "bookList": "<js>\nresult=JSON.parse(result).data\nJSON.stringify(result)\n</js>\n$.[*]",
+            "bookUrl": "https://terra-historicus.hypergryph.com/api/comic/{$.cid}",
+            "coverUrl": "$.cover",
+            "intro": "$.subtitle",
+            "name": "$.title"
+        },
+        "ruleToc": {
+            "chapterList": "<js>\nfunction extractEpisodesInfo(data) {\n    const cid = data.cid; // 获取主cid\n    const episodes = data.episodes; // 获取episodes数组\n    const resultArray = [];\n\n    episodes.forEach((episode) => {\n        // 转换时间格式为yyyy/MM/dd\n        const date = new Date(episode.displayTime * 1000);\n        const displayTime = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;\n        \n        // 构造URL\n        const url = `https://terra-historicus.hypergryph.com/api/comic/${cid}/episode/${episode.cid}`;\n\n        const episodeInfo = {\n            cid: cid, // 主cid\n            title: !isNaN(parseInt(episode.shortTitle)) ? `${episode.shortTitle} ${episode.title}` : episode.shortTitle, // 判断shortTitle是否可以转换为整数\n            eid: episode.cid, // episodes的cid\n            displayTime: displayTime, // 标准化时间\n            url: url // 新增url属性\n        };\n        resultArray.push(episodeInfo);\n    });\n\n    return resultArray.reverse();\n}\nresult=extractEpisodesInfo(JSON.parse(result).data);\n\n</js>$.[*]",
+            "chapterName": "title",
+            "chapterUrl": "url",
+            "updateTime": "displayTime"
+        },
+        "searchUrl": "https://terra-historicus.hypergryph.com/api/comic",
+        "weight": 0
+    }
+]
