@@ -1,12 +1,16 @@
 # 泰拉记事社-阅读书源
 **介绍**
-本项目为适用于[阅读](https://github.com/gedoor/legado)https://github.com/gedoor/legado 的漫画源，爬取地址为鹰角的漫画项目[泰拉记事社](https://terra-historicus.hypergryph.com/)https://terra-historicus.hypergryph.com/
+本项目为适用于[阅读](https://github.com/gedoor/legado)的漫画源，爬取地址为鹰角的漫画项目[泰拉记事社&塔卫二记事社](https://comic.hypergryph.com/)
 
 **贡献**
 
 如有问题或者功能欢迎提issue和pr。
 
-**泰拉记事社API**
+**API端点**
+泰拉记事社：`https://comic.hypergryph.com/api/comic?topicKey=terra-historicus`
+塔卫二记事社：`https://comic.hypergryph.com/api/comic?topicKey=talos-ii-historicus`
+
+**漫画主要API参考**
 
 - 全部漫画：`/api/comic`
 
