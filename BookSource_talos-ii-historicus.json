@@ -6,11 +6,11 @@
     "bookSourceUrl": "https://comic.hypergryph.com/talos-ii-historicus/",
     "bookUrlPattern": "",
     "concurrentRate": "",
-    "customOrder": 0,
+    "customOrder": 2,
     "enabled": true,
     "enabledCookieJar": true,
     "enabledExplore": true,
-    "exploreUrl": "最近更新::https://comic.hypergryph.com/api/recentUpdate?topicKey=talos-ii-historicus\n推荐阅读::https://comic.hypergryph.com/api/recommend?topicKey=talos-ii-historicus",
+    "exploreUrl": "最近更新::https://comic.hypergryph.com/api/recentUpdate?topicKey=talos-ii-historicus\n推荐阅读::https://comic.hypergryph.com/api/recommend?topicKey=talos-ii-historicus\n全部漫画::https://comic.hypergryph.com/api/comic?topicKey=talos-ii-historicus",
     "header": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.140 Safari/537.36",
     "lastUpdateTime": 1738565146612,
     "loginCheckJs": "",
@@ -32,13 +32,13 @@
         "imageStyle": "FULL"
     },
     "ruleExplore": {
-        "author": "",
-        "bookList": "<js>\n(function(){\n    let parsed = JSON.parse(result);\n    let data = parsed.data;\n    \n    // 统一转换为数组\n    let list;\n    if (Array.isArray(data)) {\n        // 最近更新：已经是数组\n        list = data;\n    } else {\n        // 推荐阅读：单个对象，包装成数组\n        list = [data];\nlist[0].coverUrl=data.pcBg;\n    }\n    return JSON.stringify(list);\n})()\n</js>\n$.[*]",
-        "bookUrl": "https://comic.hypergryph.com/api/comic/{$.comicCid}",
-        "coverUrl": "$.coverUrl",
-        "intro": "$.subtitle",
+        "author": "$.author",
+        "bookList": "<js>\n(function(){\n    let parsed = JSON.parse(result);\n    let data = parsed.data;\n    \n    // 统一转换为数组\n    let list = Array.isArray(data) ? data : [data];\n    \n    // 统一字段名和格式\n    list = list.map(item => {\n        // 统一ID字段\n        let cid = item.cid || item.comicCid || '';\n        \n        // 统一封面（优先级：cover > coverUrl > pcBg > h5Bg）\n        let cover = item.cover || item.coverUrl || item.pcBg || item.h5Bg || '';\n        \n        // 统一作者（数组转字符串，无则填空）\n        let author = item.authors ? item.authors.join(', ') : '';\n        \n        // 统一分类标签（keywords数组 或 type字段）\n        let kind = item.keywords \n            ? item.keywords.join(', ') \n            : (item.type === 1 ? '长篇漫画' : item.type === 2 ? '图集' : item.type === 3 ? '短篇漫画' : '');\n        \n        // 统一简介（多字段备选）\n        let intro = item.introduction || item.subtitle || '';\n        \n        // 统一最新章节信息（episodes数组 或 单集字段）\n        let lastChapter = '';\n        let episodeCid = item.episodeCid || '';\n        if (item.episodes && item.episodes.length > 0) {\n            let lastEp = item.episodes[item.episodes.length - 1];\n            lastChapter = lastEp.shortTitle + ' ' + lastEp.title;\n            episodeCid = lastEp.cid;\n        } else if (item.episodeShortTitle) {\n            lastChapter = item.episodeShortTitle + ' ' + (item.title || '');\n        }\n        \n        return {\n            cid: cid,\n            title: item.title || '',\n            intro:intro,\n            cover: cover,\n            author: author,\n            kind: kind,\n            intro: intro,\n            lastChapter: lastChapter,\n            episodeCid: episodeCid,\n            updateTime: item.updateTime || '',\n            type: item.type || 1,\n            // 透传原始数据（防止遗漏）\n            _raw: item\n        };\n    });\n    \n    return JSON.stringify(list);\n})()\n</js>\n$.[*]",
+        "bookUrl": "https://comic.hypergryph.com/api/comic/{$.cid}",
+        "coverUrl": "$.cover",
+        "intro": "$.intro",
         "kind": "",
-        "lastChapter": "$.episodeShortTitle",
+        "lastChapter": "$.lastChapter",
         "name": "$.title"
     },
     "ruleSearch": {
@@ -50,7 +50,7 @@
         "name": "$.title"
     },
     "ruleToc": {
-        "chapterList": "<js>\nfunction extractEpisodesInfo(data) {\n    const cid = data.cid; // 获取主cid\n    const episodes = data.episodes; // 获取episodes数组\n    const resultArray = [];\n\n    episodes.forEach((episode) => {\n        // 转换时间格式为yyyy/MM/dd\n        const date = new Date(episode.displayTime * 1000);\n        const displayTime = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;\n        \n        // 构造URL\n        const url = `https://terra-historicus.hypergryph.com/api/comic/${cid}/episode/${episode.cid}`;\n\n        const episodeInfo = {\n            cid: cid, // 主cid\n            title: !isNaN(parseInt(episode.shortTitle)) ? `${episode.shortTitle} ${episode.title}` : episode.shortTitle, // 判断shortTitle是否可以转换为整数\n            eid: episode.cid, // episodes的cid\n            displayTime: displayTime, // 标准化时间\n            url: url // 新增url属性\n        };\n        resultArray.push(episodeInfo);\n    });\n\n    return resultArray.reverse();\n}\nresult=extractEpisodesInfo(JSON.parse(result).data);\n\n</js>$.[*]",
+        "chapterList": "<js>\nfunction extractEpisodesInfo(data) {\n    const cid = data.cid; // 获取主cid\n    const episodes = data.episodes; // 获取episodes数组\n    const resultArray = [];\n\n    episodes.forEach((episode) => {\n        // 转换时间格式为yyyy/MM/dd\n        const date = new Date(episode.displayTime * 1000);\n        const displayTime = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;\n        \n        // 构造URL\n        const url = `https://comic.hypergryph.com/api/comic/${cid}/episode/${episode.cid}`;\n\n        const episodeInfo = {\n            cid: cid, // 主cid\n            title: !isNaN(parseInt(episode.shortTitle)) ? `${episode.shortTitle} ${episode.title}` : episode.shortTitle, // 判断shortTitle是否可以转换为整数\n            eid: episode.cid, // episodes的cid\n            displayTime: displayTime, // 标准化时间\n            url: url // 新增url属性\n        };\n        resultArray.push(episodeInfo);\n    });\n\n    return resultArray.reverse();\n}\nresult=extractEpisodesInfo(JSON.parse(result).data);\n\n</js>$.[*]",
         "chapterName": "title",
         "chapterUrl": "url",
         "updateTime": "displayTime"
